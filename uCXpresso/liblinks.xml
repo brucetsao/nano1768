@@ -1,0 +1,26 @@
+<!-- liblinks.xml
+
+     Code Red Technologies "Smart update wizard" script file
+     When executed on a particular application project, will
+     add appropriate links to the specified library project.
+
+     Note that this script assumes that the application project
+     contains the standard 'Debug' and 'Release' build 
+     configurations.
+-->
+
+<project name="" update="true">
+	<setting id="all.compiler.inc">
+		<value>${workspace_loc:/uCXpresso/inc}</value>
+        </setting>
+	<setting id="linker.libs">
+		<value>uCXpresso</value>
+	</setting>
+	<setting id="linker.paths" buildType="lib">
+		<value>${workspace_loc:/uCXpresso/lib}</value>
+	</setting>
+	<requires msg="Library project `uCXpresso` not found">
+		<value>uCXpresso</value>
+	</requires>
+</project>
+

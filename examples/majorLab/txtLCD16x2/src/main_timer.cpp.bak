@@ -1,0 +1,98 @@
+/*
+ ===============================================================================
+ Name        : main.cpp
+ Author      :
+ Version     : 1.0.0
+ Copyright   :
+ Description : main definition
+ History	 :
+ ===============================================================================
+ */
+#include "uCXpresso.h"
+#include "class\pin.h"
+
+#ifdef DEBUG
+#include "utils\debug.h"
+#include "ShellUSB.h"
+#endif
+
+/* ==============================================
+ user adjustable pool memory
+ ============================================== */
+static uint8_t pool[15 * 1024];
+
+//
+// TODO: insert other include files here
+//
+#include "lcd\txtLcd.h"
+#include "arduino\uno.h"
+
+#include "class\timer.h"
+#include "class\time.h"
+
+//
+// TODO: insert other definitions and declarations here
+//
+class CShowTime: public CTimer {
+protected:
+	CPin led;
+	CTxtLcd *m_lcd;
+	virtual void onTimer() {
+		Console con(*m_lcd);
+		CTime tm = CTime::now();
+
+		m_lcd->setCursor(0,1);
+		con.printf("%02d/%02d %02d:%02d:%02d",
+				tm.getMonth(),
+				tm.getDay(),
+				tm.getHour(),
+				tm.getMinute(),
+				tm.getSecond()
+		);
+
+		led = !led;
+	}
+
+public:
+	void assign(CTxtLcd &lcd) {
+		Console con(lcd);
+
+		lcd.clear();
+		con << "Hello World" << endl;
+		m_lcd = &lcd;
+		led.assign(LED4);
+	}
+};
+
+/* ==============================================
+ main task routine
+ ============================================== */
+int main(void) {
+	pool_memadd((uint32_t) pool, sizeof(pool));
+
+#ifdef DEBUG
+	CShellUSB dbg;
+	dbg.start();
+#endif
+	// Simple demo Code (removable)
+	CPin led(LED1);
+
+	CTxtLcd lcd(UNO_8, UNO_9, UNO_10, UNO_0, UNO_1, UNO_2, UNO_3, UNO_4, UNO_5, UNO_6, UNO_7);
+	lcd.begin();
+
+	CShowTime st;
+	st.assign(lcd);
+	st.setting(1000);	// period = 1000ms
+	st.start();
+
+//	lcd.cursor();
+//	lcd.blink();
+
+	// Enter an endless loop
+	while (1) {
+		// Simple demo Code (removable)
+		led = !led;
+		sleep(200);
+	}
+	return 0;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Live Show for WebSocket Server by UNO.NET-NANO1768</title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+	<script type="text/javascript" src="smoothie.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			var tmpLine = new TimeSeries();
+			var sinLine = new TimeSeries();
+
+			var smoothieChart = new SmoothieChart({ grid: { strokeStyle: 'rgb(128, 128, 128)', fillStyle: 'rgb(0, 0, 0)', lineWidth: 1, millisPerLine: 500, verticalSections: 10 } });
+			smoothieChart.addTimeSeries(tmpLine, { strokeStyle:'rgb(255, 0, 0)', lineWidth:1 });
+			smoothieChart.addTimeSeries(sinLine, { strokeStyle:'rgb(0, 255, 0)', lineWidth:1 });
+			smoothieChart.streamTo(document.getElementById("mycanvas"));
+
+
+			if (window["WebSocket"]) {
+				var conn = new WebSocket("ws://live.embeda.com.tw:8080/sin");
+
+				conn.onmessage = function(evt) {
+					var msg = JSON.parse(evt.data);
+					$("#log").text(msg.temp);
+					var t = new Date().getTime();
+					tmpLine.append(t, parseFloat(msg.temp));
+					sinLine.append(t, parseFloat(msg.value)*100);
+				};
+
+				conn.onclose = function(evt) {
+					$("#log").text("Connection closed");
+				};
+			} else {
+				$("#log").text("Browser does not support WebSockets")
+			}
+		});
+	</script>
+</head>
+
+<body>
+	<div id="log"></div>
+	<canvas id="mycanvas" width="600" height="240"></canvas>
+</body>
+
+</html>

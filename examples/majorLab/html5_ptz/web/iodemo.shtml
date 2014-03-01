@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>nano1768</title>
+  <link href="/default.css" rel="stylesheet" type="text/css" />
+</head>
+<script type="text/javascript" src="jlib/jajax-1.0.0.js"></script>
+<script type="text/javascript">
+//
+// Author: Jason
+// Date : 2012/7/12
+//
+const SENSITIVE = 4;
+var dx, dy, count = 0;
+var cx = 0, cy = 0;
+var offX = 90, offY = 90;
+
+window.ondevicemotion = function(event) {  
+    var ax = event.accelerationIncludingGravity.x;
+    var ay = event.accelerationIncludingGravity.y;
+	var az = event.accelerationIncludingGravity.z;
+	
+	// acceleration to angle 
+	var x = Math.acos(ax/Math.sqrt(Math.pow(ax,2)+Math.pow(ay,2)+Math.pow(az,2)));
+	var y = Math.acos(az/Math.sqrt(Math.pow(ax,2)+Math.pow(ay,2)+Math.pow(az,2)));
+	
+	dx = dx + (x * 180 / Math.PI);
+	dy = dy + (y * 180 / Math.PI);
+	count = count+1;
+	
+	if ( count==SENSITIVE ) {
+		cx = dx / SENSITIVE;	
+		cy = dy / SENSITIVE;
+		x = offX - cx;
+		y = cy - offY;
+	
+		var url = "/ajax/ptz?X=" + Math.round(x * 100) + "&Y=" + Math.round(y * 100);
+		
+		getDataToElement(url, "status");
+		
+		document.getElementById("valX").innerHTML = Math.round(x);
+		document.getElementById("valY").innerHTML = Math.round(y);
+		
+		dx = dy = count = 0;
+	}
+}
+
+function reset_to_zero() {
+	offX = cx;
+	offY = cy;
+	var url = "/ajax/ptz?X=0&Y=0";	
+	getDataToElement(url, "status");
+}
+
+</script>
+
+<body onload="">
+<p class="embeda_logo"><img src="ucxpresso-tm-01.png" width="191" height="48" /><br />
+</p>
+<hr>
+<table border="1">
+  <tr class="caption_txt">
+    <td width="150" bgcolor="#6633FF"><a href="index.html">Home</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="pinassignment.html">Pin Assignment</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="iodemo.shtml">HTML5 Demo</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="googleapi.shtml">Sys Info</a></td>
+  </tr>
+</table>
+<hr>
+<p class="title_txt">PTZ Control (for iOS only)</p>
+<p class="title_txt">
+  <input type="submit" name="zero" id="zero" value="Reset to Zero" onclick="reset_to_zero()" />
+</p>
+<div id="valX">-</div>
+<div id="valY">-</div>
+<div id="status">-</div>
+</body>
+</html>

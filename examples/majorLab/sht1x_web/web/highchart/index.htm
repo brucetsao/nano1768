@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>WebSocket + Highcharts Example</title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script type="text/javascript">
+    	jQuery.noConflict();
+    </script>    
+	<script type="text/javascript">
+
+	(function($){ // encapsulate jQuery
+		$(function () {
+			$(document).ready(function() {
+				Highcharts.setOptions({
+					global: {
+						useUTC: false
+					}
+			}
+		);
+
+		var chart;
+		var series;
+		if (window["WebSocket"]) {
+			var socket = new WebSocket("ws://live.embeda.com.tw:8080/sin");
+			socket.onmessage = function(evt) {
+					var msg = JSON.parse(evt.data);
+//					var x = (new Date(parseInt(msg.time)*1000)).getTime();
+					var x = (new Date()).getTime();
+					var y = parseFloat(msg.value);
+					series.addPoint([x,y], true, true);
+			}
+		} 
+		
+        chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'container',
+                type: 'spline',
+                marginRight: 10,
+                events: {
+                    load: function() {
+                        // set up the updating of the chart each second
+                        series = this.series[0];
+                    }
+                }
+            },
+            title: {
+                text: 'Live WebSocket Data'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 500
+            },
+            yAxis: {
+                title: {
+                    text: 'Value'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: 'SIN data',
+                data: (function() {
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+    
+                    for (i = -60; i <= 0; i++) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: 0
+                        });
+                    }
+                    return data;
+                })()
+            }]
+        });
+    });
+    
+});
+})(jQuery);
+		</script>
+	</head>
+	<body>
+<script src="js/highcharts.js"></script>
+<script src="js/modules/exporting.js"></script>
+
+<div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+
+	</body>
+</html>

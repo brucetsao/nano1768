@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>uCXpresso</title>
+		<style>		
+			@font-face {
+				font-family: DigitsBoldItalic;
+				src: url(/fonts/DS-DIGIT.TTF);		
+			}
+			
+			.digits {
+				font-family: DigitsBoldItalic;
+				font-size: 62pt;
+				text-align: right;
+			}
+		</style>	
+		<!-- Include jQuery/Mobile -->
+		<link href="jquery-mobile/themes/ucxpresso.min.css" rel="stylesheet" type="text/css" />
+		<link href="jquery-mobile/1.2.0/jquery.mobile.structure-1.2.0.min.css" rel="stylesheet" type="text/css" />	
+		<script src="jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
+		<script src="jquery-mobile/1.2.0/jquery.mobile-1.2.0.min.js" type="text/javascript" ></script>
+		
+	</head>
+
+	<script type="text/javascript">
+		var socket;
+		if (window["WebSocket"]) {
+    		var host = window.location.hostname;									// 取得主機名稱 (與瀏覽器輸入的網址相同)
+    		var port = window.location.port;										// 取得連線 port number
+			socket = new WebSocket("ws://" + host + ":" + port + "/sslm-k-056b");	// 建立 WebSocket 物件, service name='sslm-k-056b'
+			socket.onmessage = function(evt) {											// 接收訊息 callback function
+				var msg = JSON.parse(evt.data);											// 將收到的資料轉換為 JSON 物件
+				// nothing
+			}
+	
+			function onEvent(cmd, val) {
+				if ( socket.readyState==1 ) {
+					var msg =  { command:cmd, value: parseInt(val)};	// make JSON object
+					socket.send(JSON.stringify(msg));					// send message with JSON format string
+				} else {
+					// reconnect
+					socket = new WebSocket("ws://" + host + ":" + port + "/sslm-k-056b");	
+				}
+			}
+		}
+	</script>
+
+	<body>
+		<!-- Home -->
+		<div data-role="page" id="page1">
+		    <div data-theme="a" data-role="header">
+		        <h3>
+		            SSLM-K-056B
+		        </h3>
+		    </div>
+		    <div data-role="content">
+		        <div id="id-datetime" data-role="fieldcontain" onclock>
+		            <fieldset data-role="controlgroup" data-type="horizontal">
+		                <legend>
+		                    Date / Time
+		                </legend>
+		                <input id="radio1" name="showType" value="date" type="radio" onclick="onEvent(0, 0);">
+		                <label for="radio1">
+		                    Date
+		                </label>
+		                <input id="radio2" name="showType" value="time" type="radio" onclick="onEvent(0, 1);" checked="checked">
+		                <label for="radio2">
+		                    Time
+		                </label>
+		            </fieldset>
+		        </div>
+				<div data-role="fieldcontain">
+	            	<fieldset data-role="controlgroup">
+		                <label for="id-hour">
+		                    Time Format (Hour)
+		                </label>
+		                <select name="toggleswitch1" id="id-hour" data-theme="" data-role="slider"
+		                data-mini="true" onchange="onEvent(2, this.options[this.options.selectedIndex].value);" >
+		                    <option value="0">
+		                        24
+		                    </option>
+		                    <option value="1">
+		                        12
+		                    </option>
+		                </select>
+            		</fieldset>
+    			</div>			        
+		        <div data-role="fieldcontain">
+		            <fieldset data-role="controlgroup">
+		                <label for="id-brightness">
+		                    Brightness
+		                </label>
+		                <input id="id-brightness" type="range" name="slider" value="50" step="2" 
+		                min="0" max="100" data-highlight="true" onchange="onEvent(1, this.value);">
+		            </fieldset>
+		        </div>
+		    </div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,64 @@
+@charset "utf-8";
+
+a {
+	color:#FFF	
+}
+
+.embeda_logo {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: xx-large;
+	color: #66F;
+	font-weight: bold;
+}
+.title_txt {
+	font-family: "Courier New", Courier, monospace;
+	font-size: small;
+	color: #F00;
+	font-weight: bold;
+}
+.text1 {
+	font-family: "Courier New", Courier, monospace;
+	font-size: small;
+}
+.copyright {
+	text-align: right;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: x-small;
+	color: #66F;
+}
+.caption_txt {
+	font-family: "Courier New", Courier, monospace;
+	font-size: small;
+	color: #FFF;
+	text-align: center;
+}
+.menu_txt {
+	font-family: "Courier New", Courier, monospace;
+	font-size: small;
+	color: #F60;
+}
+.high_light {
+	font-weight: bold;
+	font-size: small;
+	color: #F00;
+}
+.sourcecode {
+	font-family: "Courier New", Courier, monospace;
+	font-size: small;
+	font-size: small;
+}
+.source_func {
+	color: #000;
+	font-weight: bold;
+}
+.source_help {
+	color: #060;
+}
+.sourcekeyword {
+	font-style: normal;
+	color: #906;
+	font-weight: bold;
+}
+sourcevalue {
+	color: #03C;
+}

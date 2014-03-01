@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>nano1768</title>
+  <link href="/default.css" rel="stylesheet" type="text/css" />
+</head>
+<script type="text/javascript" src="jlib/jajax-1.0.0.js"></script>
+<script type="text/javascript" src="jlib/jstr-1.0.0.js"></script>
+<script type="text/javascript">
+//
+// temperature progress bar
+//
+var hEnd = 16;			// set to number of h <span>'s.
+var hColor = 'red'; 	// set to h bar color
+var hInterval = 2000;	// Update Interval 1000ms
+
+function show_humi(value) {
+	for (var i=1; i<=hEnd; i++) {
+		if ( i<=value )
+			 document.getElementById('h'+i).style.backgroundColor = hColor;
+		else document.getElementById('h'+i).style.backgroundColor = 'transparent';
+	}
+}
+
+function show_temp(value) {
+	for (var i=1; i<=hEnd; i++) {
+		if ( i<=value )
+			 document.getElementById('t'+i).style.backgroundColor = hColor;
+		else document.getElementById('t'+i).style.backgroundColor = 'transparent';
+	}
+}
+
+function sensor_update() {
+	document.getElementById('showbarT').style.visibility = 'visible';
+	document.getElementById('showbarH').style.visibility = 'visible';
+	
+	function update(txt){
+		var value;
+		// temperature
+		value = getParamValue(txt, 0, ',');		
+		document.getElementById('txtTemp').innerHTML = "Temperature:" + value + " C";
+		value = Math.round((parseFloat(value) / 100)*hEnd);
+		show_temp(value);
+		
+		// humidity
+		value = getParamValue(txt, 1, ',');	
+		document.getElementById('txtHumi').innerHTML = "Humidity:" + value + " %"
+		value = Math.round((parseFloat(value) / 100)*hEnd);
+		show_humi(value);
+		
+		setTimeout('sensor_update()',hInterval);
+	}
+	
+	getDataToCallback("/ajax/temp?", update);
+}
+
+</script>
+
+<body onload="sensor_update()">
+<p class="embeda_logo"><img src="Logo1.png" width="149" height="55" /><br />
+</p>
+<hr>
+<table border="1">
+  <tr class="caption_txt">
+    <td width="150" bgcolor="#6633FF"><a href="index.html">Home</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="pinassignment.html">Pin Assignment</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="iodemo.shtml">Ajax Demo</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="googleapi.shtml">Google API</a></td>
+  </tr>
+</table>
+<hr>
+
+<p class="title_txt">CGI Demo</p>
+<table width="207" border="1">
+  <tr>
+    <td width="197" bgcolor="#6666FF" class="caption_txt"><div id="txtTemp"></div></td>
+  </tr>
+  <tr>
+    <td>        
+    <div id="showbarT" style="font-size:8pt;padding:2px;border:solid black 1px;visibility:hidden">
+        <span id="t1">&nbsp; &nbsp;</span>
+        <span id="t2">&nbsp; &nbsp;</span>
+        <span id="t3">&nbsp; &nbsp;</span>
+        <span id="t4">&nbsp; &nbsp;</span>
+        <span id="t5">&nbsp; &nbsp;</span>
+        <span id="t6">&nbsp; &nbsp;</span>
+        <span id="t7">&nbsp; &nbsp;</span>
+        <span id="t8">&nbsp; &nbsp;</span>
+        <span id="t9">&nbsp; &nbsp;</span>
+        <span id="t10">&nbsp; &nbsp;</span>
+        <span id="t11">&nbsp; &nbsp;</span>
+		<span id="t12">&nbsp; &nbsp;</span>
+        <span id="t13">&nbsp; &nbsp;</span>
+        <span id="t14">&nbsp; &nbsp;</span>
+        <span id="t15">&nbsp; &nbsp;</span>
+        <span id="t16">&nbsp; &nbsp;</span>
+        </div>
+	</td>
+  </tr>
+</table>
+</br>
+<table width="207" border="1">
+  <tr>
+    <td width="197" bgcolor="#6666FF" class="caption_txt"><div id="txtHumi"></div></td>
+  </tr>
+  <tr>
+    <td>        
+    <div id="showbarH" style="font-size:8pt;padding:2px;border:solid black 1px;visibility:hidden">
+        <span id="h1">&nbsp; &nbsp;</span>
+        <span id="h2">&nbsp; &nbsp;</span>
+        <span id="h3">&nbsp; &nbsp;</span>
+        <span id="h4">&nbsp; &nbsp;</span>
+        <span id="h5">&nbsp; &nbsp;</span>
+        <span id="h6">&nbsp; &nbsp;</span>
+        <span id="h7">&nbsp; &nbsp;</span>
+        <span id="h8">&nbsp; &nbsp;</span>
+        <span id="h9">&nbsp; &nbsp;</span>
+        <span id="h10">&nbsp; &nbsp;</span>
+        <span id="h11">&nbsp; &nbsp;</span>
+		<span id="h12">&nbsp; &nbsp;</span>
+        <span id="h13">&nbsp; &nbsp;</span>
+        <span id="h14">&nbsp; &nbsp;</span>
+        <span id="h15">&nbsp; &nbsp;</span>
+        <span id="h16">&nbsp; &nbsp;</span>
+        </div>
+	</td>
+  </tr>
+</table>
+
+</br>
+<p class="title_txt">SSI Demo</p>
+<table width="200" border="1">
+  <tr class="caption_txt">
+    <td bgcolor="#FF6600">Item</td>
+    <td bgcolor="#FF6600">Value</td>
+  </tr>
+  <tr>
+    <td><span class="text1">Date</span></td>
+    <td><!--#ssiDATE--></td>
+  </tr>
+  <tr>
+    <td><span class="text1">Time</span></td>
+    <td><!--#ssiTIME--></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>

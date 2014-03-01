@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width = device-width" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+
+		<title>uCXpresso</title>
+		<link rel="shortcut icon" href="images/lock_icon_72x72.png">
+		
+		<!-- iOS Web-App ICON ------------------------------------>
+        <!-- iPhone -->
+        <link href="images/lock_icon_57x57.png" rel="apple-touch-icon">
+        <!-- iPad -->
+        <link href="images/lock_icon_72x72.png" sizes="72x72" rel="apple-touch-icon">
+        <!-- iPhone (Retina) -->
+        <link href="images/lock_icon_114x114.png" sizes="114x114" rel="apple-touch-icon">
+        <!-- iPad (Retina) -->
+        <link href="images/lock_icon_144x144.png" sizes="144x144" rel="apple-touch-icon">
+		
+		<!-- Add2Home -->
+		<script type="text/javascript">
+			var addToHomeConfig = {
+				animationIn: 'bubble',
+				animationOut: 'drop',
+				lifespan:10000,
+				touchIcon:true,
+				message: "You can add the DoorLock app in Home Screen. Your device is an <strong>%device</strong>. The action icon is `%icon`."
+			};
+		</script>
+		<link rel="stylesheet" href="js/add2home.css">
+		<script type="text/javascript"  src="js/add2home.js" charset="utf-8"></script>
+		
+		<!-- Include jQuery/Mobile -->
+		<link href="jquery-mobile/themes/ucxpresso-1.3.1.min.css" rel="stylesheet" type="text/css" />
+		<link href="jquery-mobile/1.3.1/jquery.mobile.structure-1.3.1.min.css" rel="stylesheet" type="text/css" />
+		<script src="jquery/1.9.1/jquery-1.9.1.min.js" type="text/javascript"></script>
+		<script src="jquery-mobile/1.3.1/jquery.mobile-1.3.1.min.js" type="text/javascript" ></script>
+
+		<script type="text/javascript">
+			var theme_active = "d";
+			var theme_inactive = "default";
+			var webSocket = null;
+
+			function invalid_state(){
+				$( "#unlock_button" ).buttonMarkup({ theme: theme_inactive });
+				$( "#lock_button" ).buttonMarkup({ theme: theme_inactive });
+				$("#unlock_button").addClass('ui-disabled');
+				$("#lock_button").addClass('ui-disabled');
+			};
+			
+			function locking_state(){
+				$( "#unlock_button" ).buttonMarkup({ theme: theme_inactive });
+				$( "#lock_button" ).buttonMarkup({ theme: theme_active });
+
+				$("#unlock_button").addClass('ui-disabled');
+				$("#lock_button").addClass('ui-disabled');
+			};
+			function unlocking_state(){
+				$( "#unlock_button" ).buttonMarkup({ theme: theme_active });
+				$( "#lock_button" ).buttonMarkup({ theme: theme_inactive });
+
+				$("#unlock_button").addClass('ui-disabled');
+				$("#lock_button").addClass('ui-disabled');
+			};			
+			function lock_state(){
+
+				$( "#unlock_button" ).buttonMarkup({ theme: theme_inactive });
+				$( "#lock_button" ).buttonMarkup({ theme: theme_active });
+				$("#unlock_button").removeClass('ui-disabled');
+				$("#lock_button").removeClass('ui-disabled');
+			};
+			function unlock_state(){
+
+				$( "#unlock_button" ).buttonMarkup({ theme: theme_active });
+				$( "#lock_button" ).buttonMarkup({ theme: theme_inactive });
+				$("#unlock_button").removeClass('ui-disabled');
+				$("#lock_button").removeClass('ui-disabled');
+			};
+
+		    function checkConnection() {
+		    	if (window["WebSocket"]) {
+			    	if ( webSocket==null || webSocket.readyState!=1 ) {
+			    		var host = window.location.hostname;
+			    		webSocket = new WebSocket("ws://" + host + "/door");	
+				        webSocket.onmessage = function(evt) 
+				        {//get data form server
+				        	var msg = JSON.parse(evt.data);
+				            switch(msg.status) {
+				            	case "lock":
+					        		lock_state();
+				            	break;
+				            	case "unlock":
+					        		unlock_state();
+				            	break;
+				            	case "locking":
+					        		locking_state();
+				            	break;
+				            	case "unlocking":
+					        		unlocking_state();
+				            	break;
+				            }
+				        }
+				        webSocket.onopen = function()
+				        {// fire while websocket connected
+				        }
+			    	}
+		    		return webSocket.readyState;
+		    	}
+		    	return 0; 	
+		    }
+		    
+		    function sendCommand(action) {
+		    	checkConnection();
+		    	if ( webSocket.readyState==1 ) {
+			    	var messages = new Object();
+					messages.action = action;
+					webSocket.send(JSON.stringify(messages));
+				} 
+		    }
+
+			$(document).on("pageinit", "#lock_controlg_page", function(event) {
+				
+	    		$('#unlock_button').click(function() {
+	    			// alert($("#unlock_button").attr("data-theme"));
+	    			if(checkConnection()==1 ) { //&& $(this).attr("data-theme") == theme_inactive){
+						unlocking_state();
+						sendCommand("unlocking");
+					}
+				});
+				
+	    		$('#lock_button').click(function() {
+	    			// alert($("#lock_button").attr("data-theme"));
+	    			if(checkConnection()==1 ) { //&& $(this).attr("data-theme") == theme_inactive){
+						locking_state();
+						sendCommand("locking");
+					}
+	    		});
+	    		
+	    		$('#enroll_button').click(function() {
+	    			if ( checkConnection()==1 ) {
+	    				sendCommand("enroll");
+	    			}	
+	    		});
+	    		
+	    		checkConnection();
+			});
+			
+			// jQuery resize event
+			$(window).resize(function() {
+			  window.scrollTo(0, 1);
+			});	
+			
+			// disable scroll bar
+			document.addEventListener("touchmove", function(event){
+    			event.preventDefault();	
+    			}, false);		
+		</script>
+	</head>
+	<body>
+		<!-- Page for Door Control -->
+		<div data-role="page" id="lock_controlg_page">
+		  <div data-role="header" data-theme="b">
+		    <h1>Door Lock</h1>
+		    <!--
+		    <a href="#check_in_page" data-icon="info" class="ui-btn-right">Check In</a>
+		    -->
+		  </div>
+		  <div data-role="content">
+			<div data-role="controlgroup">
+				<a href="#" data-role="button" data-theme=theme_inactive id="unlock_button"><img src="./images/1365427652_unlock.png" width="128" height="128"></a>
+				<a href="#" data-role="button" data-theme=theme_active id="lock_button"><img src="./images/1365427771_lock.png" width="128" height="128"></a>
+			</div>
+		  </div>
+		</div>
+		
+		<!-- TODO: Page for Check In -->
+		<div data-role="page" id="check_in_page">
+			<div data-role="header" data-theme="c">
+				<h1>ORIENT.NET</h1>
+				<a href="#lock_controlg_page" data-icon="info" class="ui-btn-right">Door</a>
+			</div>
+			<p>
+			    <a href="#" data-role="button" data-inline="true" data-icon="check" data-theme="b" id="enroll_button">Enroll</a>
+			</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>PTZ Control</title>
+		<!-- Include jQuery/Mobile -->
+		<link href="jquery-mobile/themes/ucxpresso-1.3.1.min.css" rel="stylesheet" type="text/css" />
+		<link href="jquery-mobile/1.3.1/jquery.mobile.structure-1.3.1.min.css" rel="stylesheet" type="text/css" />
+		<script src="jquery/1.9.1/jquery-1.9.1.min.js" type="text/javascript"></script>
+		<script src="jquery-mobile/1.3.1/jquery.mobile-1.3.1.min.js" type="text/javascript" ></script>
+
+</head>
+
+<!-- 
+HTML5 & WebSocket 
+Author: Jason
+Date  : 2013/1/20
+http://www.ucxpresso.net
+-->
+<script type="text/javascript">
+	var socket;
+	var offX = 90, offY = 90;
+	var cx, cy;
+	
+	// 
+	// Create WebSocket
+	//
+	if (window["WebSocket"]) {	// is browser supported the WebSocket ?
+		var host = window.location.hostname;
+		var port = window.location.port;
+		var socket = new WebSocket("ws://" + host + ":" + port +  "/ptz");
+	
+		//
+		// Set x,y via WebSocket with JSON format
+		//
+		function sendXY(x, y) {
+			var msg = { "x":x,	"y":y };
+			socket.send(JSON.stringify(msg));
+		}
+		
+		//
+		// on Motion Event
+		//
+		window.ondevicemotion = function(event) {  
+			var ax = event.accelerationIncludingGravity.x;
+			var ay = event.accelerationIncludingGravity.y;
+			var az = event.accelerationIncludingGravity.z;
+			
+			// acceleration to angle 
+			var x = Math.acos(ax/Math.sqrt(Math.pow(ax,2)+Math.pow(ay,2)+Math.pow(az,2)));
+			var y = Math.acos(az/Math.sqrt(Math.pow(ax,2)+Math.pow(ay,2)+Math.pow(az,2)));
+			
+			cx = (x * 180 / Math.PI);
+			cy = (y * 180 / Math.PI);
+			x = offX - cx;
+			y = cy - offY;
+			sendXY(x, y);
+		}
+		
+		//
+		// Reset Servo angle 
+		//
+		function resetXY() {
+			if ( socket.readyState==1 ) {
+				offX = cx;
+				offY = cy;
+				sendXY(0, 0);
+			} else {
+				// if disconnected, re-connect again
+				socket = new WebSocket("ws://" + host + ":" + port +  "/ptz");
+			}
+		}
+	}
+</script>
+<body>
+<div data-role="page" id="page">
+  <div data-role="header">
+    <h1>PTZ Control</h1>
+  </div>
+  <div data-role="content">
+  
+    <button data-icon="refresh" onclick="resetXY();">Reset</button>
+  </div>
+</div>
+</body>
+</html>

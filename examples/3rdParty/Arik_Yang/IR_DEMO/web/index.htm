@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>IR Demo</title>
+    <link href="layout.css" rel="stylesheet" type="text/css">
+    <script language="javascript" type="text/javascript" src="/jquery/1.8.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/jquery/flot/jquery.flot.js"></script>
+
+	<style type=text/css> 
+		html, body {
+		margin: 0;
+		text-align: center;
+		}
+		#container {
+		position: relative;
+		margin: 0 auto;
+		width: 760px;
+		text-align: left;
+		}
+		#recordFlag {width:80px; height:80px;}
+		#actionButton {width:160px; height:160px; font-size:200%;}
+		
+	</style>
+	<script type="text/javascript">
+	$(function () {
+	
+	
+	    // update by WebSocket
+	    if (window["WebSocket"]) 
+	    {
+	    	var host = window.location.hostname;
+	        webSocket = new WebSocket("ws://" + host + "/IR");
+	        webSocket.onmessage = function(evt) 
+	        {
+	            var msg = evt.data;
+//	        	alert(msg);
+	            if(msg == "record_done")
+	            {
+					document.getElementById('actionButton').value = '發送';
+					document.getElementById('actionButton').disabled = false;
+					document.getElementById("recordFlag").checked = false;
+	            	document.getElementById("recordFlag").disabled = false;
+	            }
+
+	            if(msg == "ready_to_record")
+	            {
+	            	document.getElementById("recordFlag").checked = true;
+					document.getElementById("actionButton").value = "開始錄製...";
+	            }
+
+	            if(msg == "to_record")
+	            {
+					document.getElementById('actionButton').value = '錄製中....';
+					document.getElementById('actionButton').disabled = true;
+	            	document.getElementById("recordFlag").disabled = true;
+	            }
+	            if(msg == "to_play")
+	            {
+					document.getElementById('actionButton').value = '發送';
+					document.getElementById('actionButton').disabled = false;
+					document.getElementById("recordFlag").checked = false;
+	            }
+	            if(msg == "ready_to_play")
+	            {
+					document.getElementById('actionButton').value = '發送';
+					document.getElementById('actionButton').disabled = false;
+					document.getElementById("recordFlag").checked = false;
+	            }
+	            
+	        }
+	        webSocket.onopen = function()
+	        {
+//	        	webSocket.send("Message to send");
+//	        	alert("Message is sent...");
+	        }
+	
+	    } 
+	    
+	});
+
+	function onFlag(){
+//		alert("onflag");
+		var flag = document.getElementById("recordFlag").checked;
+		//notice server the check box has been checked
+		
+
+		if(flag)
+		{
+			webSocket.send("ready_to_record");
+		}
+		else
+		{
+			webSocket.send("ready_to_play");
+		}
+		
+	}
+
+	function onButton(){
+		var flag = document.getElementById("recordFlag").checked;
+	
+		var url;
+		var val = 0;
+	
+		if(flag)
+		{
+			webSocket.send("to_record");
+		}
+		else
+		{
+			webSocket.send("to_play");
+		}	
+	
+	}
+	
+	function onRecord()
+	{
+		webSocket.send("record");
+	}		
+
+	</script>
+
+ </head>
+    <body>
+    <div id="container">
+		<p class="foxlink_log"><img src="Foxlink_logo_blue.png" width="191" height="48" />  <h1>IR demo</h1>
+		<hr>
+		<input type="checkbox" name="recordFlag" id="recordFlag" onClick="onFlag()" />
+		<input type="button" value="發送" id="actionButton" onclick="onButton()"/>
+	</div>
+ </body>
+ 
+</html>

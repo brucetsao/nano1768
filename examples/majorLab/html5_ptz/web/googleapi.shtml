@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>nano1768</title>
+  <link href="/default.css" rel="stylesheet" type="text/css" />
+</head>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['gauge']});
+    </script>
+    
+<script type="text/javascript" src="jlib/jajax-1.0.0.js"></script>
+<script type="text/javascript" src="jlib/jstr-1.0.0.js"></script>
+
+<script type="text/javascript">
+//
+// Google Chart API
+//
+var resource;
+var resData;
+var resOptions;
+function drawGauge() {
+	//
+	// system resource trace
+	//
+    resData = google.visualization.arrayToDataTable([
+        ['Memory', 'CPU', 'Network'],
+        [0, 0, 0]
+      ]);
+	
+      resource = new google.visualization.Gauge(document.getElementById('resource'));
+      resOptions = {
+          min: 0,
+          max: 100,
+		  height: 200,
+		  width: 500,
+          yellowFrom: 60,
+          yellowTo: 80,
+          redFrom: 80,
+          redTo: 100,
+          minorTicks: 5, 
+		  animation:{
+        	duration: 1000,
+        	easing: 'out'
+      	  }
+      };
+    resource.draw(resData, resOptions);
+}
+
+google.setOnLoadCallback(drawGauge);
+
+function update_value(mem, cpu, net) {
+	  resData.setValue(0, 0, mem);
+	  resData.setValue(0, 1, cpu);
+	  resData.setValue(0, 2, net);
+	  resource.draw(resData, resOptions);
+}
+
+// 
+// uCXpresso AJAX 
+//
+var hInterval = 2000;	// Update Interval 2000ms
+function res_update() {		
+        function update(txt){
+          var mem, cpu, net;
+		  mem = Number(getParamValue(txt, 0, ','));
+		  cpu = Number(getParamValue(txt, 1, ','));
+		  net = Number(getParamValue(txt, 2, ','));
+          update_value(mem, cpu, net);
+          setTimeout('res_update()',hInterval);
+        }
+        getDataToCallback("/ajax/sysinfo?", update);
+}
+
+setTimeout('res_update()',hInterval);
+</script>
+
+<body>
+<p class="embeda_logo"><img src="ucxpresso-tm-01.png" width="191" height="48" /><br />
+</p>
+<hr>
+<table border="1">
+  <tr class="caption_txt">
+    <td width="150" bgcolor="#6633FF"><a href="index.html">Home</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="pinassignment.html">Pin Assignment</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="iodemo.shtml">HTML5 Demo</a></td>
+    <td width="150" bgcolor="#6633FF"><a href="googleapi.shtml">Sys Info</a></td>
+  </tr>
+</table>
+<hr>
+<p class="title_txt">Google API Demo (Live Data:Ajax)</p>
+<div id="resource" align="left">
+</div>
+</body>
+</html>
